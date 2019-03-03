@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "org.yyama.twiiterorej.api.key",
+    "type": "java.lang.String",
+    "description": "twitter api key"
+  },
+  {
+    "name": "org.yyama.twiiterorej.api.seacret",
+    "type": "java.lang.String",
+    "description": "twitter api seacret key"
+  }
+]}
