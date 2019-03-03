@@ -29,7 +29,7 @@ public class Sample {
 	private String getTweets(String bearerToken) throws IOException {
 		// URL urlObj = new
 		// URL("https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=yyama694&count=5");
-		URL urlObj = new URL("https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=fk6681&count=5");
+		URL urlObj = new URL("https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=@yyama694&count=5");
 		HttpURLConnection http = (HttpURLConnection) urlObj.openConnection();
 		http.setRequestMethod("GET");
 
