@@ -35,6 +35,7 @@ public class TweetAPI {
 	private ResponseEntity<String> getTweets(String bearerToken, String name, Integer num) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Content-Type:", "application/json");
+		headers.add("Access-Control-Allow-Origin", "*");
 		HttpStatus status;
 		StringBuilder sbBody = new StringBuilder();
 		try {
@@ -43,7 +44,6 @@ public class TweetAPI {
 			HttpURLConnection http = (HttpURLConnection) urlObj.openConnection();
 			http.setRequestMethod("GET");
 			http.setRequestProperty("Authorization", "Bearer " + bearerToken);
-			http.setRequestProperty("Access-Control-Allow-Origin", "*");
 			InputStream is = null;
 			is = http.getInputStream();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
