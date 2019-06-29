@@ -40,7 +40,8 @@ public class TweetAPI {
 		StringBuilder sbBody = new StringBuilder();
 		try {
 			URL urlObj = new URL(
-					"https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=" + name + "&count=" + num);
+					"https://api.twitter.com/1.1/statuses/user_timeline.json?tweet_mode=extended&screen_name=" + name
+							+ "&count=" + num);
 			HttpURLConnection http = (HttpURLConnection) urlObj.openConnection();
 			http.setRequestMethod("GET");
 			http.setRequestProperty("Authorization", "Bearer " + bearerToken);
