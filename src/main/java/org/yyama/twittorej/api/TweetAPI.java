@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.yyama.twittorej.domein.BearerToken;
 
@@ -26,22 +27,25 @@ public class TweetAPI {
 
 	@ResponseBody
 	@RequestMapping("/{name}/{num}")
-	public ResponseEntity<String> getSample(@PathVariable("name") String name, @PathVariable("num") Integer num)
-			throws IOException {
+	public ResponseEntity<String> getSample(@PathVariable("name") String name, @PathVariable("num") Integer num,
+			@RequestParam(name = "max_id", required = false) String maxId) throws IOException {
 		String token = bearerToken.token();
-		return getTweets(token, name, num);
+		return getTweets(token, name, num, maxId);
 	}
 
-	private ResponseEntity<String> getTweets(String bearerToken, String name, Integer num) {
+	private ResponseEntity<String> getTweets(String bearerToken, String name, Integer num, String maxId) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Content-Type:", "application/json");
 		headers.add("Access-Control-Allow-Origin", "*");
 		HttpStatus status;
 		StringBuilder sbBody = new StringBuilder();
 		try {
-			URL urlObj = new URL(
-					"https://api.twitter.com/1.1/statuses/user_timeline.json?tweet_mode=extended&screen_name=" + name
-							+ "&count=" + num);
+			String u = "https://api.twitter.com/1.1/statuses/user_timeline.json?tweet_mode=extended&screen_name=" + name
+					+ "&count=" + num;
+			if (maxId != null) {
+				u += "&max_id=" + (Long.valueOf(maxId) - 1);
+			}
+			URL urlObj = new URL(u);
 			HttpURLConnection http = (HttpURLConnection) urlObj.openConnection();
 			http.setRequestMethod("GET");
 			http.setRequestProperty("Authorization", "Bearer " + bearerToken);
@@ -59,5 +63,4 @@ public class TweetAPI {
 		}
 		return new ResponseEntity<>(sbBody.toString(), headers, status);
 	}
-
 }
