@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -42,9 +43,10 @@ public class TweetAPI {
 		try {
 			String u = "https://api.twitter.com/1.1/statuses/user_timeline.json?tweet_mode=extended&screen_name=" + name
 					+ "&count=" + num;
-			if (maxId != null) {
-				u += "&max_id=" + (Long.valueOf(maxId) - 1);
+			if (maxId != null && !maxId.equals("")) {
+				u += "&max_id=" + (new BigInteger(maxId).subtract(new BigInteger("1")).toString());
 			}
+			System.out.println("url:" + u);
 			URL urlObj = new URL(u);
 			HttpURLConnection http = (HttpURLConnection) urlObj.openConnection();
 			http.setRequestMethod("GET");
