@@ -1,8 +1,7 @@
 package org.yyama.twittorej.api;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -39,17 +38,41 @@ public class HttpAPI {
 		try {
 			HttpURLConnection http = (HttpURLConnection) new URL(url).openConnection();
 			http.setRequestMethod("GET");
-			InputStream is = null;
-			is = http.getInputStream();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-			String s;
-			StringBuilder sbBody = new StringBuilder();
-			while ((s = reader.readLine()) != null) {
-				sbBody.append(s);
-				sbBody.append("\n");
+			InputStream is = http.getInputStream();
+			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+			int availableSize = is.available();
+			byte[] bytes = new byte[availableSize + 1];
+			while (true) {
+				int size = is.read(bytes);
+				if (-1 == size) {
+					break;
+				}
+				byteArrayOutputStream.write(bytes, 0, size);
 			}
 
-			Document doc = Jsoup.parse(sbBody.toString());
+			// 文字コードがわからないので、一旦 UTF-8でパースしてみる
+			String body = new String(byteArrayOutputStream.toByteArray());
+			Document doc = Jsoup.parse(body);
+
+			// 文字コードを取得する
+			Elements charSetElement = doc.select("meta[http-equiv=\"content-type\"]");
+			String charSet = "";
+			System.out.println(charSetElement.size());
+			if (charSetElement.size() > 0) {
+				String content = charSetElement.attr("content");
+				charSet = content.substring(content.indexOf("charset=") + 8);
+			} else if (charSetElement.size() == 0) {
+				charSetElement = doc.select("meta[charset]");
+				charSet = charSetElement.attr("charset");
+			}
+			System.out.println("charset:" + charSet);
+
+			// 文字コードが sjis だったらパースし直し
+			if (charSet.equals("shift_jis")) {
+				body = new String(byteArrayOutputStream.toByteArray(), "SJIS");
+				doc = Jsoup.parse(body);
+			}
+
 			Elements elements = doc.select("meta[property^=og:]");
 			Map<String, String> ogs = new HashMap<>();
 			ogs = elements.stream().collect(Collectors.toMap(e -> e.attr("property"), e -> e.attr("content")));
@@ -64,6 +87,7 @@ public class HttpAPI {
 	}
 
 	public static void main(String[] args) {
+//		new HttpAPI().getOg("https://www.itmedia.co.jp/news/articles/1908/19/news087.html");
 		new HttpAPI().getOg("http://radiko.jp/#!/live/TBS");
 	}
 
