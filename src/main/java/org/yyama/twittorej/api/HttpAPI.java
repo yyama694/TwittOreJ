@@ -33,11 +33,13 @@ public class HttpAPI {
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Content-Type:", "application/json");
 		headers.add("Access-Control-Allow-Origin", "*");
+//		headers.add("User-Agent", "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)");
 		HttpStatus status;
 		String resultJson = "";
 		try {
 			HttpURLConnection http = (HttpURLConnection) new URL(url).openConnection();
 			http.setRequestMethod("GET");
+//			http.setRequestProperty("User-Agent","facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)");
 			InputStream is = http.getInputStream();
 			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 			int availableSize = is.available();
@@ -50,14 +52,13 @@ public class HttpAPI {
 				byteArrayOutputStream.write(bytes, 0, size);
 			}
 
-			// 文字コードがわからないので、一旦 UTF-8でパースしてみる
+			// 文字コードがわからないので一旦、UTF-8でパースする
 			String body = new String(byteArrayOutputStream.toByteArray());
 			Document doc = Jsoup.parse(body);
-
-			// 文字コードを取得する
+//			System.out.println(doc.select("meta"));
+			// 文字コードを取得する。
 			Elements charSetElement = doc.select("meta[http-equiv=\"content-type\"]");
 			String charSet = "";
-			System.out.println(charSetElement.size());
 			if (charSetElement.size() > 0) {
 				String content = charSetElement.attr("content");
 				charSet = content.substring(content.indexOf("charset=") + 8);
@@ -65,7 +66,7 @@ public class HttpAPI {
 				charSetElement = doc.select("meta[charset]");
 				charSet = charSetElement.attr("charset");
 			}
-			System.out.println("charset:" + charSet);
+//			System.out.println("charset:" + charSet);
 
 			// 文字コードが sjis だったらパースし直し
 			if (charSet.equals("shift_jis")) {
@@ -75,20 +76,24 @@ public class HttpAPI {
 
 			Elements elements = doc.select("meta[property^=og:]");
 			Map<String, String> ogs = new HashMap<>();
-			ogs = elements.stream().collect(Collectors.toMap(e -> e.attr("property"), e -> e.attr("content")));
+			ogs = elements.stream()
+					.collect(Collectors.toMap(e -> e.attr("property"), e -> e.attr("content"), (e1, e2) -> e1));
 			ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 			resultJson = mapper.writeValueAsString(ogs);
 			System.out.println(resultJson);
 			status = HttpStatus.OK;
 		} catch (Exception e) {
+			System.err.println(e);
 			status = HttpStatus.BAD_REQUEST;
 		}
+//		System.out.println(status);
 		return new ResponseEntity<>(resultJson, headers, status);
 	}
 
 	public static void main(String[] args) {
 //		new HttpAPI().getOg("https://www.itmedia.co.jp/news/articles/1908/19/news087.html");
 		new HttpAPI().getOg("http://radiko.jp/#!/live/TBS");
+		new HttpAPI().getOg("https://www.youtube.com/watch?v=1g2h4Yrlg5g&feature=youtu.be");
 	}
 
 }
