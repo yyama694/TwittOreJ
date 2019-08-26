@@ -39,10 +39,15 @@ public class HttpAPI {
 		try {
 			HttpURLConnection http = (HttpURLConnection) new URL(url).openConnection();
 			http.setRequestMethod("GET");
+			System.out.println(1);
+
 //			http.setRequestProperty("User-Agent","facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)");
 			InputStream is = http.getInputStream();
+			System.out.println(2);
 			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+			System.out.println(3);
 			int availableSize = is.available();
+			System.out.println(4);
 			byte[] bytes = new byte[availableSize + 1];
 			while (true) {
 				int size = is.read(bytes);
@@ -51,6 +56,7 @@ public class HttpAPI {
 				}
 				byteArrayOutputStream.write(bytes, 0, size);
 			}
+			System.out.println(5);
 
 			// 文字コードがわからないので一旦、UTF-8でパースする
 			String body = new String(byteArrayOutputStream.toByteArray());
@@ -86,14 +92,15 @@ public class HttpAPI {
 			System.err.println(e);
 			status = HttpStatus.BAD_REQUEST;
 		}
-//		System.out.println(status);
+		System.out.println(status);
 		return new ResponseEntity<>(resultJson, headers, status);
 	}
 
 	public static void main(String[] args) {
 //		new HttpAPI().getOg("https://www.itmedia.co.jp/news/articles/1908/19/news087.html");
-		new HttpAPI().getOg("http://radiko.jp/#!/live/TBS");
-		new HttpAPI().getOg("https://www.youtube.com/watch?v=1g2h4Yrlg5g&feature=youtu.be");
+//		new HttpAPI().getOg("http://radiko.jp/#!/live/TBS");
+//		new HttpAPI().getOg("https://www.youtube.com/watch?v=1g2h4Yrlg5g&feature=youtu.be");
+		new HttpAPI().getOg("https://peing.net/ja/qs/364778072");
 	}
 
 }
