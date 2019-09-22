@@ -66,12 +66,16 @@ public class HttpAPI {
 				charSet = charSetElement.attr("charset");
 			}
 
-			// 文字コードが sjis だったらパースし直し
+			// 文字コードが sjis ,EUC-JP だったらパースし直し
 			if (charSet.equals("shift_jis")) {
 				body = new String(byteArrayOutputStream.toByteArray(), "SJIS");
 				doc = Jsoup.parse(body);
+			} else if (charSet.equals("EUC-JP")) {
+				body = new String(byteArrayOutputStream.toByteArray(), "EUC-JP");
+				doc = Jsoup.parse(body);
 			}
 
+			
 			Elements elements = doc.select("meta[property^=og:]");
 			Map<String, String> ogs = new HashMap<>();
 			ogs = elements.stream()
